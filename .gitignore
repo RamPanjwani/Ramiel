@@ -1,0 +1,54 @@
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+venv/
+env/
+
+# === Node / Frontend ===
+node_modules/
+frontend/dist/
+frontend/.vite/
+
+# === Model Weights (large, downloaded separately) ===
+models/
+
+# === Data (local, not committed) ===
+data/kb_raw/
+data/uploads/
+
+# === Logs ===
+logs/
+
+# === Environment ===
+.env
+.env.local
+.env.production
+
+# === IDE ===
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# === OS ===
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === Docker ===
+*.log
+
+# === Testing ===
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
