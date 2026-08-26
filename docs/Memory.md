@@ -2,12 +2,12 @@
 
 **Purpose:** running state of build. Update after every work session. AI/human reads this FIRST before touching code — don't re-read whole repo, don't guess state.
 
-**Last updated:** 2026-08-26 (Phase 1 complete)
+**Last updated:** 2026-08-26 (Phase 2 complete)
 
 ---
 
 ## Current Phase
-**Phase 1 — Single Model, Basic Chat** (COMPLETE ✅) -> Next: **Phase 2 — Model Registry & Router**
+**Phase 2 — Model Registry & Router** (COMPLETE ✅) -> Next: **Phase 3 — Tool Layer (Standalone)**
 
 See Phases.md for phase definitions and exit criteria.
 
@@ -17,11 +17,11 @@ See Phases.md for phase definitions and exit criteria.
 
 | Field | Value |
 |---|---|
-| Current phase | Phase 1 (Complete) |
-| File/module in progress | none (Phase 1 done) |
-| Last completed file | `backend/api/routes_chat.py`, `backend/serving/vllm_client.py`, `tests/test_chat_endpoint.py` |
+| Current phase | Phase 2 (Complete) |
+| File/module in progress | none (Phase 2 done) |
+| Last completed file | `backend/router/model_router.py`, `backend/router/registry_loader.py`, `tests/test_router.py` |
 | Blocked on | nothing |
-| Next action | Phase 2 — Multi-model registry loader, task tag router & fallback chain |
+| Next action | Phase 3 — Standalone tool layer: `file_io.py`, `code_sandbox.py`, `spreadsheet.py`, and `tests/test_tools.py` |
 
 ---
 
@@ -30,9 +30,11 @@ See Phases.md for phase definitions and exit criteria.
 - `config/tool_permissions.yaml` — Scoped filesystem paths and sandbox resource limits.
 - `config/network_policy.yaml` — Loopback-only air-gap policy and egress monitor settings.
 - `backend/main.py` — FastAPI application entrypoint with lifespan managing EgressMonitor & logging setup.
-- `backend/api/routes_chat.py` — Phase 1 chat endpoint dispatching to local vLLM/Ollama model serving with offline fallback guidance and trace logging.
+- `backend/api/routes_chat.py` — Multi-model chat endpoint with auto-classification (code, doc, vision, calc, general_qa), router dispatch, fallback chain cascading, and trace logging.
 - `backend/api/routes_upload.py` — File upload ingestion endpoint stub.
-- `backend/api/routes_admin.py` — System health, model roster, live egress telemetry, and execution trace retrieval endpoints.
+- `backend/api/routes_admin.py` — System health, model registry introspection, route preview simulation (`/api/admin/route`), and trace retrieval endpoints.
+- `backend/router/registry_loader.py` — YAML parser and validator for model registry with duplicate and fallback validation.
+- `backend/router/model_router.py` — Task classifier, tag matcher, fallback chain resolver, and model selector.
 - `backend/audit/logger.py` — Structlog configuration with JSON/console pipelines and local log file output.
 - `backend/audit/trace_store.py` — SQLite database engine for persisting and querying execution traces, prompts, responses, and latency.
 - `backend/serving/vllm_client.py` — Local vLLM client connecting over loopback HTTP with OpenAI-compatible API.
@@ -40,7 +42,6 @@ See Phases.md for phase definitions and exit criteria.
 - `backend/security/egress_monitor.py` — Real-time OS socket watcher and violation logger.
 - `backend/security/sandbox_policy.py` — Resource policy and network-none constraint loader.
 - `backend/orchestrator/*` — Stubs for Planner, Executor, TaskState, and LangGraph machine.
-- `backend/router/*` — Stubs for ModelRouter and RegistryLoader.
 - `backend/tools/*` — Stubs for ScopedFileIO, CodeSandbox, SpreadsheetTool, DocSearchTool, ToolRegistry.
 - `backend/ocr_vision/*` — Stubs for OCRPipeline and DrawingReader.
 - `backend/knowledge_base/*` — Stubs for DocumentIngestor, Embedder, VectorStore, HybridSearch.
@@ -48,25 +49,26 @@ See Phases.md for phase definitions and exit criteria.
 - `sandbox/Dockerfile.sandbox` + `sandbox/entrypoint.sh` — Minimal offline sandbox container image.
 - `scripts/setup_env.sh`, `scripts/download_models.sh`, `scripts/run_demo.sh` — Setup scripts with Ollama and HuggingFace download commands.
 - `docker-compose.yml` + `Dockerfile.backend` + `frontend/Dockerfile.frontend` — Compose stack.
-- `frontend/` — React + Vite + Tailwind v4 instrument panel UI with EgressMonitorPanel, ChatPanel, FileUpload, TaskTrace, and DeliverablePreview.
+- `frontend/` — React + Vite + Tailwind v4 instrument panel UI with EgressMonitorPanel, ChatPanel, FileUpload, TaskTrace (with live model roster & traces), and DeliverablePreview.
 - `tests/test_egress_monitor.py` — 17 unit and integration tests passing for zero-egress proof.
 - `tests/test_audit.py` — Unit tests for logger and SQLite trace store.
 - `tests/test_serving.py` — Unit tests for vLLM & Ollama serving clients.
-- `tests/test_chat_endpoint.py` — Integration tests for `/api/chat`, `/api/admin/traces`, and `/api/admin/health`.
+- `tests/test_chat_endpoint.py` — Integration tests for auto-routing (`code` -> `coder-primary`, `document` -> `reasoning-primary`), `/api/admin/route`, and trace logging.
+- `tests/test_router.py` — Unit tests for task classification, registry validation, and fallback chains.
 
 ---
 
 ## In Progress 🔧
-_(none — Phase 1 completed)_
+_(none — Phase 2 completed)_
 
 ---
 
-## Not Started (Phase 2 upcoming)
-- [ ] Implement `backend/router/registry_loader.py` to parse and validate `config/model_registry.yaml`
-- [ ] Implement `backend/router/model_router.py` with tag-based classification, VRAM estimation, and fallback chains
-- [ ] Un-skip and implement `tests/test_router.py`
-- [ ] Connect router to chat flow / orchestrator for multi-model dispatch
-- [ ] Update frontend TaskTrace component with dynamic model routing info
+## Not Started (Phase 3 upcoming)
+- [ ] Implement `backend/tools/file_io.py` with path whitelisting per `config/tool_permissions.yaml`
+- [ ] Implement `backend/tools/code_sandbox.py` using Docker daemon with `--network none`, timeout, and output capture
+- [ ] Implement `backend/tools/spreadsheet.py` using `openpyxl` for Excel reading and formula evaluation
+- [ ] Implement `backend/tools/tool_registry.py` for registering and dispatching tools
+- [ ] Un-skip and implement `tests/test_tools.py`
 
 ---
 
@@ -75,6 +77,7 @@ _(record any decision that deviates from or finalizes something left open in PRD
 
 | Date | Decision | Why | Doc affected |
 |---|---|---|---|
+| 2026-08-26 | Rule-based regex task classifier in `backend/router/model_router.py` | Fast, deterministic, zero-inference-overhead task classification across `code`, `vision`, `calc`, `document`, and `general_qa` | Architecture.md §4 |
 | 2026-08-26 | SQLite chosen for local trace store (`backend/audit/trace_store.py`) | Zero external dependencies, fast queryable relational format, robust on-prem persistence | Architecture.md, Rules.md |
 | 2026-08-26 | Added `python-multipart` to requirements | Required for FastAPI file upload support | backend/requirements.txt |
 | 2026-08-26 | Frontend implemented using React + Vite + Tailwind v4 with full Instrument Panel design tokens | Design.md specifies a complete custom UI system (oscilloscope-style egress strip, dark palette, hairline borders) | Architecture.md, Design.md |
@@ -91,7 +94,8 @@ _(record any decision that deviates from or finalizes something left open in PRD
 ## Session Log
 _(short entries, newest on top — what happened, what's next. Keeps context across chat switches without re-reading whole codebase)_
 
-- **2026-08-26 (Phase 1 Complete)** — Implemented structured audit logger (structlog) and SQLite trace store (`TraceStore`). Implemented local model serving clients (`VLLMClient`, `OllamaClient`). Connected `/api/chat` with local model dispatch, audit trace logging, and offline fallback guidance. Added `/api/admin/traces`. Added comprehensive tests (`test_audit.py`, `test_serving.py`, `test_chat_endpoint.py`) — all 28 tests passing. Mypy and ruff clean. Next: Phase 2 (Model Registry & Router).
+- **2026-08-26 (Phase 2 Complete)** — Built `backend/router/registry_loader.py` and `backend/router/model_router.py`. Implemented task classification (`code`, `document`, `vision`, `calc`, `general_qa`), declarative registry lookup, and fallback chains. Connected auto-routing to `/api/chat`, `/api/admin/models`, and added `/api/admin/route` preview endpoint. Updated frontend `TaskTrace.tsx` with live model roster and trace stream. Added comprehensive unit & integration tests (`test_router.py`, `test_chat_endpoint.py`) — 39 tests passing. Next: Phase 3 (Tool Layer).
+- **2026-08-26 (Phase 1 Complete)** — Implemented structured audit logger (structlog) and SQLite trace store (`TraceStore`). Implemented local model serving clients (`VLLMClient`, `OllamaClient`). Connected `/api/chat` with local model dispatch, audit trace logging, and offline fallback guidance. Added `/api/admin/traces`. Added comprehensive tests (`test_audit.py`, `test_serving.py`, `test_chat_endpoint.py`) — all 28 tests passing. Mypy and ruff clean.
 - **2026-08-26 (Phase 0 Complete)** — Git initialized. Full monorepo scaffolding created: config YAMLs, FastAPI backend with egress monitor and all module stubs, React+Vite+Tailwind frontend with instrument panel design tokens, sandbox container, test suite (17 passed), Docker Compose, and helper scripts. All type checks (mypy) and lints (ruff) green.
 - **2026-08-26** — PRD.md, Architecture.md, Rules.md, Phases.md finalized. Memory.md scaffolded.
 

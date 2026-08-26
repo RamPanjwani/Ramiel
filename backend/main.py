@@ -29,7 +29,7 @@ egress_monitor = EgressMonitor()
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Startup / shutdown lifecycle."""
-    logger.info("ramiel.startup", phase="1-chat")
+    logger.info("ramiel.startup", phase="2-router")
     egress_monitor.start()
     yield
     egress_monitor.stop()
@@ -38,7 +38,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 app = FastAPI(
     title="Ramiel — Sovereign AI Workbench",
-    version="0.1.0",
+    version="0.2.0",
     lifespan=lifespan,
 )
 
@@ -59,4 +59,4 @@ app.include_router(admin_router, prefix="/api/admin")
 @app.get("/health")
 async def health_check() -> dict[str, str]:
     """Liveness probe — confirms the API is running."""
-    return {"status": "ok", "service": "ramiel-backend", "phase": "1"}
+    return {"status": "ok", "service": "ramiel-backend", "phase": "2"}

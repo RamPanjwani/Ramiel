@@ -42,7 +42,7 @@ export function App() {
             <span className="text-[10px] text-[#E4E9EA]">ON-PREM GPU</span>
           </div>
           <span className="text-[10px] bg-[#1E2528] px-2 py-1 rounded border border-[#2A3236] text-[#D98E2F]">
-            PHASE 0
+            PHASE 2
           </span>
         </div>
       </header>
