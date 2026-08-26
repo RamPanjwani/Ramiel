@@ -1,6 +1,6 @@
 /**
  * Ramiel API Client (Typed)
- * Connects to the local FastAPI backend.
+ * Connects to the local FastAPI backend with graceful offline handling.
  */
 
 export interface EgressStatusResponse {
@@ -72,55 +72,84 @@ export interface TraceRecord {
   timestamp: string;
 }
 
+async function safeFetchJson<T>(url: string, options?: RequestInit, fallback?: T): Promise<T> {
+  try {
+    const res = await fetch(url, options);
+    if (!res.ok) {
+      if (fallback !== undefined) return fallback;
+      throw new Error(`HTTP ${res.status} from ${url}`);
+    }
+    const text = await res.text();
+    if (!text.trim()) {
+      if (fallback !== undefined) return fallback;
+      throw new Error(`Empty response from ${url}`);
+    }
+    return JSON.parse(text) as T;
+  } catch (err) {
+    if (fallback !== undefined) return fallback;
+    throw err;
+  }
+}
+
 export const api = {
   async getHealth(): Promise<{ status: string; phase: string }> {
-    const res = await fetch('/health');
-    return res.json();
+    return safeFetchJson('/health', undefined, { status: 'offline', phase: 'unknown' });
   },
 
   async getAdminHealth(): Promise<AdminHealthResponse> {
-    const res = await fetch('/api/admin/health');
-    return res.json();
+    return safeFetchJson('/api/admin/health', undefined, {
+      backend: 'offline',
+      vllm_serving: 'offline',
+      ollama_serving: 'offline',
+      models_registered: '0',
+      phase: 'offline',
+    });
   },
 
   async getModels(): Promise<ModelsResponse> {
-    const res = await fetch('/api/admin/models');
-    return res.json();
+    return safeFetchJson('/api/admin/models', undefined, {
+      models: [],
+      serving_engines: {
+        vllm: { status: 'offline', endpoint: 'http://127.0.0.1:8000/v1' },
+        ollama: { status: 'offline', endpoint: 'http://127.0.0.1:11434' },
+      },
+      phase: 'offline',
+    });
   },
 
   async getRoutePreview(prompt: string): Promise<RoutePreviewResponse> {
-    const res = await fetch(`/api/admin/route?prompt=${encodeURIComponent(prompt)}`);
-    return res.json();
+    return safeFetchJson(`/api/admin/route?prompt=${encodeURIComponent(prompt)}`);
   },
 
   async getTraces(limit: number = 50): Promise<{ count: number; traces: TraceRecord[] }> {
-    const res = await fetch(`/api/admin/traces?limit=${limit}`);
-    return res.json();
+    return safeFetchJson(`/api/admin/traces?limit=${limit}`, undefined, { count: 0, traces: [] });
   },
 
   async getEgressStatus(): Promise<EgressStatusResponse> {
-    const res = await fetch('/api/admin/egress');
-    return res.json();
+    return safeFetchJson('/api/admin/egress', undefined, {
+      running: false,
+      total_checks: 0,
+      violations: [],
+      status: 'clean',
+    });
   },
 
   async sendChatMessage(message: string, sessionId?: string): Promise<ChatResponse> {
-    const res = await fetch('/api/chat', {
+    return safeFetchJson('/api/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ message, session_id: sessionId }),
     });
-    return res.json();
   },
 
   async uploadFile(file: File): Promise<{ status: string; filename: string; message: string }> {
     const formData = new FormData();
     formData.append('file', file);
-    const res = await fetch('/api/upload', {
+    return safeFetchJson('/api/upload', {
       method: 'POST',
       body: formData,
     });
-    return res.json();
   },
 };
