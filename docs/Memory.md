@@ -2,12 +2,12 @@
 
 **Purpose:** running state of build. Update after every work session. AI/human reads this FIRST before touching code — don't re-read whole repo, don't guess state.
 
-**Last updated:** 2026-08-26 (Phase 4 complete)
+**Last updated:** 2026-08-26 (Phase 5 complete)
 
 ---
 
 ## Current Phase
-**Phase 4 — Agent Orchestrator** (COMPLETE ✅) -> Next: **Phase 5 — Deliverables Engine (.docx, .pptx, .xlsx)**
+**Phase 5 — Deliverables Engine (.docx, .pptx, .xlsx)** (COMPLETE ✅) -> Next: **Phase 6 — OCR & Vision Pipeline**
 
 See Phases.md for phase definitions and exit criteria.
 
@@ -17,11 +17,11 @@ See Phases.md for phase definitions and exit criteria.
 
 | Field | Value |
 |---|---|
-| Current phase | Phase 4 (Complete) |
-| File/module in progress | none (Phase 4 done) |
-| Last completed file | `backend/orchestrator/planner.py`, `backend/orchestrator/state.py`, `backend/orchestrator/executor.py`, `backend/orchestrator/graph.py`, `tests/test_orchestrator.py` |
+| Current phase | Phase 5 (Complete) |
+| File/module in progress | none (Phase 5 done) |
+| Last completed file | `backend/deliverables/docx_writer.py`, `backend/deliverables/pptx_writer.py`, `backend/deliverables/xlsx_writer.py`, `tests/test_deliverables.py` |
 | Blocked on | nothing |
-| Next action | Phase 5 — Deliverables generation: `docx_writer.py`, `pptx_writer.py`, `xlsx_writer.py`, and `tests/test_deliverables.py` |
+| Next action | Phase 6 — OCR Pipeline (PaddleOCR offline) & Drawing Reader (P&ID parsing) |
 
 ---
 
@@ -49,9 +49,11 @@ See Phases.md for phase definitions and exit criteria.
 - `backend/orchestrator/planner.py` — Structured multi-step plan generation with tool assignments and confirmation flags.
 - `backend/orchestrator/executor.py` — ReAct execution loop coordinating model routing, tool dispatch, bounded replanning, and confirmation gates.
 - `backend/orchestrator/graph.py` — State graph workflow execution and checkpoint resumption.
+- `backend/deliverables/docx_writer.py` — Executive approval notes with memo headers, executive summary, findings, data tables, and formal sign-offs (`python-docx`).
+- `backend/deliverables/pptx_writer.py` — Presentation decks with title slide, structured bullet slides, and summary slides (`python-pptx`).
+- `backend/deliverables/xlsx_writer.py` — Multi-sheet styled calculation workbooks with header formatting and column auto-sizing (`openpyxl`).
 - `backend/ocr_vision/*` — Stubs for OCRPipeline and DrawingReader.
 - `backend/knowledge_base/*` — Stubs for DocumentIngestor, Embedder, VectorStore, HybridSearch.
-- `backend/deliverables/*` — Stubs for DocxWriter, PptxWriter, XlsxWriter.
 - `sandbox/Dockerfile.sandbox` + `sandbox/entrypoint.sh` — Minimal offline sandbox container image.
 - `scripts/setup_env.sh`, `scripts/download_models.sh`, `scripts/run_demo.sh` — Setup scripts with Ollama and HuggingFace download commands.
 - `docker-compose.yml` + `Dockerfile.backend` + `frontend/Dockerfile.frontend` — Compose stack.
@@ -63,20 +65,20 @@ See Phases.md for phase definitions and exit criteria.
 - `tests/test_router.py` — Unit tests for task classification, registry validation, and fallback chains.
 - `tests/test_tools.py` — Unit tests for file boundary validation, code sandbox execution & timeout, and spreadsheet operations.
 - `tests/test_orchestrator.py` — Unit and integration tests for Planner, TaskState, Executor, confirmation gates, and OrchestrationGraph.
+- `tests/test_deliverables.py` — Unit tests for Word documents, PowerPoint decks, and Excel workbooks.
 
 ---
 
 ## In Progress 🔧
-_(none — Phase 4 completed)_
+_(none — Phase 5 completed)_
 
 ---
 
-## Not Started (Phase 5 upcoming)
-- [ ] Implement `backend/deliverables/docx_writer.py` for professional executive approval notes
-- [ ] Implement `backend/deliverables/pptx_writer.py` for briefing decks
-- [ ] Implement `backend/deliverables/xlsx_writer.py` for calculation audit workbooks
-- [ ] Create `tests/test_deliverables.py`
-- [ ] Connect deliverables output to frontend `DeliverablePreview` pane
+## Not Started (Phase 6 upcoming)
+- [ ] Implement `backend/ocr_vision/ocr_pipeline.py` (offline OCR extraction)
+- [ ] Implement `backend/ocr_vision/drawing_reader.py` (P&ID diagram, tag & connectivity extraction)
+- [ ] Implement `backend/serving/vision_client.py` (Qwen2-VL local inference client)
+- [ ] Create `tests/test_vision.py`
 
 ---
 
@@ -85,6 +87,7 @@ _(record any decision that deviates from or finalizes something left open in PRD
 
 | Date | Decision | Why | Doc affected |
 |---|---|---|---|
+| 2026-08-26 | Added `python-docx` and `python-pptx` to backend dependencies | Required for generating Word approval notes and PowerPoint presentations | backend/requirements.txt |
 | 2026-08-26 | SQLite checkpointing in `backend/orchestrator/state.py` | Allows full offline task pause, inspection, and human confirmation resumption | Architecture.md §6 |
 | 2026-08-26 | Added `openpyxl`, `pandas`, `types-openpyxl`, `pandas-stubs` | Required for spreadsheet tool operations and formula/data evaluation | backend/requirements.txt |
 | 2026-08-26 | Rule-based regex task classifier in `backend/router/model_router.py` | Fast, deterministic, zero-inference-overhead task classification across `code`, `vision`, `calc`, `document`, and `general_qa` | Architecture.md §4 |
@@ -104,7 +107,8 @@ _(record any decision that deviates from or finalizes something left open in PRD
 ## Session Log
 _(short entries, newest on top — what happened, what's next. Keeps context across chat switches without re-reading whole codebase)_
 
-- **2026-08-26 (Phase 4 Complete)** — Built `backend/orchestrator/state.py` (TaskState, SQLite checkpoints, confirmation gating), `backend/orchestrator/planner.py` (structured multi-step plan generation), `backend/orchestrator/executor.py` (ReAct loop, tool coordination, bounded replanning), and `backend/orchestrator/graph.py` (workflow state graph). Added complete unit & integration tests (`test_orchestrator.py`) — all 58 tests passing across test suite. Mypy and ruff clean. Next: Phase 5 (Deliverables Engine).
+- **2026-08-26 (Phase 5 Complete)** — Implemented deliverables engine: `DocxWriter` (executive approval notes, memo blocks, tables, formal sign-offs), `PptxWriter` (slide decks with title, content, summary layouts), and `XlsxWriter` (styled multi-sheet calculation workbooks). Added `test_deliverables.py` — all 61 tests passing across test suite. Mypy and ruff clean. Next: Phase 6 (OCR & Vision Pipeline).
+- **2026-08-26 (Phase 4 Complete)** — Built `backend/orchestrator/state.py` (TaskState, SQLite checkpoints, confirmation gating), `backend/orchestrator/planner.py` (structured multi-step plan generation), `backend/orchestrator/executor.py` (ReAct loop, tool coordination, bounded replanning), and `backend/orchestrator/graph.py` (workflow state graph). Added complete unit & integration tests (`test_orchestrator.py`) — all 58 tests passing across test suite. Mypy and ruff clean.
 - **2026-08-26 (Phase 3 Complete)** — Implemented standalone tool layer: `ScopedFileIO` (permission-checked against `tool_permissions.yaml`), `CodeSandbox` (`--network none` Docker + timeout management), `SpreadsheetTool` (`openpyxl` & `pandas` tabular inspection & stats), and `ToolRegistry` (tool registration, discovery, schema export, and dispatch). All 51 tests passing.
 - **2026-08-26 (Phase 2 Complete)** — Built `backend/router/registry_loader.py` and `backend/router/model_router.py`. Implemented task classification (`code`, `document`, `vision`, `calc`, `general_qa`), declarative registry lookup, and fallback chains. Connected auto-routing to `/api/chat`, `/api/admin/models`, and added `/api/admin/route` preview endpoint. Updated frontend `TaskTrace.tsx` with live model roster and trace stream. Added comprehensive unit & integration tests (`test_router.py`, `test_chat_endpoint.py`) — 39 tests passing.
 - **2026-08-26 (Phase 1 Complete)** — Implemented structured audit logger (structlog) and SQLite trace store (`TraceStore`). Implemented local model serving clients (`VLLMClient`, `OllamaClient`). Connected `/api/chat` with local model dispatch, audit trace logging, and offline fallback guidance. Added `/api/admin/traces`. Added comprehensive tests (`test_audit.py`, `test_serving.py`, `test_chat_endpoint.py`) — all 28 tests passing. Mypy and ruff clean.

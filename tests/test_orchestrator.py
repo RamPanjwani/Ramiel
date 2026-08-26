@@ -33,7 +33,9 @@ class TestPlanner:
     @pytest.mark.anyio
     async def test_generates_structured_plan_code(self, planner: Planner) -> None:
         """Planner generates code-specific multi-step plan."""
-        plan = await planner.generate_plan("Write a python script to validate checksums")
+        plan = await planner.generate_plan(
+            "Write a python script to validate checksums"
+        )
         assert len(plan) >= 3
         assert plan[0]["task_tag"] == "code"
         assert any(step.get("tool_name") == "code_exec" for step in plan)
@@ -41,7 +43,9 @@ class TestPlanner:
     @pytest.mark.anyio
     async def test_generates_structured_plan_document(self, planner: Planner) -> None:
         """Document plan includes human confirmation gate before final write."""
-        plan = await planner.generate_plan("Summarize inspection report into an approval note")
+        plan = await planner.generate_plan(
+            "Summarize inspection report into an approval note"
+        )
         assert len(plan) >= 3
         assert plan[0]["task_tag"] == "document"
         assert any(step.get("requires_confirmation") is True for step in plan)
@@ -94,7 +98,9 @@ class TestExecutor:
     @pytest.mark.anyio
     async def test_executes_plan_steps(self, executor: Executor) -> None:
         """Executor executes multi-step task and records observations."""
-        state = await executor.execute_task("Write a python script to calculate 10 + 20")
+        state = await executor.execute_task(
+            "Write a python script to calculate 10 + 20"
+        )
         assert state.status == "completed"
         assert len(state.observations) >= 2
         assert state.results.get("summary") is not None

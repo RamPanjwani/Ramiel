@@ -14,7 +14,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal
 
-TaskStatus = Literal["pending", "planning", "running", "waiting_confirmation", "completed", "failed"]
+TaskStatus = Literal[
+    "pending", "planning", "running", "waiting_confirmation", "completed", "failed"
+]
 
 
 class TaskState:
@@ -75,15 +77,23 @@ class TaskState:
             "updated_at": self.updated_at,
         }
 
-    def add_observation(self, step_index: int, tool_name: str | None, output: Any, status: str = "success") -> None:
+    def add_observation(
+        self,
+        step_index: int,
+        tool_name: str | None,
+        output: Any,
+        status: str = "success",
+    ) -> None:
         """Record an observation for a completed step."""
-        self.observations.append({
-            "step_index": step_index,
-            "tool_name": tool_name,
-            "output": output,
-            "status": status,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-        })
+        self.observations.append(
+            {
+                "step_index": step_index,
+                "tool_name": tool_name,
+                "output": output,
+                "status": status,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        )
         self.updated_at = datetime.now(timezone.utc).isoformat()
 
     def request_confirmation(self, action: str, details: dict[str, Any]) -> None:
@@ -139,7 +149,9 @@ class TaskState:
         return self.task_id
 
     @classmethod
-    def load_checkpoint(cls, task_id: str, db_path: str | Path = "logs/audit/checkpoints.db") -> TaskState:
+    def load_checkpoint(
+        cls, task_id: str, db_path: str | Path = "logs/audit/checkpoints.db"
+    ) -> TaskState:
         """Load a previously saved task checkpoint by task ID."""
         path = Path(db_path)
         if not path.exists():

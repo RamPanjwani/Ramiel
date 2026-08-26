@@ -44,7 +44,9 @@ class OrchestrationGraph:
         state = await self.executor.execute_task(prompt, session_id=session_id)
         return state.to_dict()
 
-    async def resume(self, task_id: str, confirmation_approved: bool = True) -> dict[str, Any]:
+    async def resume(
+        self, task_id: str, confirmation_approved: bool = True
+    ) -> dict[str, Any]:
         """Resume a task halted at a human-in-the-loop checkpoint gate."""
         state = TaskState.load_checkpoint(task_id)
         if state.status == "waiting_confirmation":
