@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-base: #0E1214;
+  --color-bg-surface: #161B1E;
+  --color-bg-surface-raised: #1E2528;
+  --color-line-hairline: #2A3236;
+  --color-text-primary: #E4E9EA;
+  --color-text-secondary: #8B979B;
+  --color-signal-amber: #D98E2F;
+  --color-signal-red: #C4453B;
+  --color-signal-green: #4A9E6E;
+
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+:root {
+  color-scheme: dark;
+  background-color: var(--color-bg-base);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #0E1214;
+  color: #E4E9EA;
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0E1214;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2A3236;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3A444A;
+}
