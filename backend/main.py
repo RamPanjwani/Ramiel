@@ -23,7 +23,7 @@ logger = structlog.get_logger(__name__)
 # ---------------------------------------------------------------------------
 # Singleton egress monitor — started on app boot, queryable via admin routes.
 # ---------------------------------------------------------------------------
-egress_monitor = EgressMonitor()
+egress_monitor = EgressMonitor(scope_to_process=True)
 
 
 @asynccontextmanager

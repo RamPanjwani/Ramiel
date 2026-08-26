@@ -16,6 +16,7 @@ References:
 from __future__ import annotations
 
 import json
+import os
 import threading
 from datetime import datetime, timezone
 from pathlib import Path
@@ -78,10 +79,12 @@ class EgressMonitor:
         self,
         poll_interval: float = 1.0,
         log_dir: str | Path = "logs/egress",
+        scope_to_process: bool = False,
     ) -> None:
         self.poll_interval = poll_interval
         self.log_dir = Path(log_dir)
         self.log_dir.mkdir(parents=True, exist_ok=True)
+        self.scope_to_process = scope_to_process
 
         self.running: bool = False
         self.total_checks: int = 0
@@ -102,7 +105,7 @@ class EgressMonitor:
         )
         self.running = True
         self._thread.start()
-        logger.info("egress_monitor.started", interval=self.poll_interval)
+        logger.info("egress_monitor.started", interval=self.poll_interval, scoped=self.scope_to_process)
 
     def stop(self) -> None:
         """Signal the polling thread to stop."""
@@ -123,16 +126,35 @@ class EgressMonitor:
         while not self._stop_event.is_set():
             try:
                 self._check_connections()
-            except Exception:
-                logger.exception("egress_monitor.poll_error")
+            except (OSError, RuntimeError) as exc:
+                logger.warning("egress_monitor.poll_error", error=str(exc))
             self._stop_event.wait(self.poll_interval)
+
+    def _get_monitored_pids(self) -> set[int]:
+        """Collect PIDs belonging to Ramiel process tree."""
+        try:
+            current = psutil.Process(os.getpid())
+            pids = {current.pid}
+            for child in current.children(recursive=True):
+                pids.add(child.pid)
+            return pids
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            return {os.getpid()}
 
     def _check_connections(self) -> None:
         """Inspect active network connections for non-loopback remotes."""
         self.total_checks += 1
-        connections = psutil.net_connections(kind="inet")
+        try:
+            connections = psutil.net_connections(kind="inet")
+        except (psutil.AccessDenied, PermissionError):
+            connections = []
+
+        monitored_pids = self._get_monitored_pids() if self.scope_to_process else None
 
         for conn in connections:
+            if monitored_pids is not None and conn.pid not in monitored_pids:
+                continue
+
             if conn.raddr:
                 remote_ip = conn.raddr.ip
                 if not _is_loopback(remote_ip):
