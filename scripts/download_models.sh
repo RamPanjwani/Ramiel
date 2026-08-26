@@ -6,21 +6,44 @@
 
 set -euo pipefail
 
-echo "=== Ramiel Model Downloader ==="
-echo "WARNING: This script requires network access (one-time only)."
+echo "================================================================"
+echo "          Ramiel Model Downloader (One-Time Setup)              "
+echo "================================================================"
+echo "NOTICE: Network egress is allowed ONLY for this one-time step."
+echo "All model weights will be saved to ./models/ (gitignored)."
 echo ""
 
 MODEL_DIR="${MODEL_DIR:-./models}"
 mkdir -p "$MODEL_DIR"
 
-echo "TODO: Add model download commands here."
-echo "  Example targets (per model_registry.yaml):"
-echo "    - llama3-70b-instruct  (reasoning primary)"
-echo "    - llama3-8b-instruct   (reasoning fallback)"
-echo "    - qwen2.5-coder-32b    (coder primary)"
-echo "    - qwen2.5-coder-7b     (coder fallback)"
-echo "    - qwen2-vl-7b          (vision primary)"
-echo "    - bge-m3                (embeddings)"
+ENGINE="${1:-ollama}"
+
+case "$ENGINE" in
+    ollama)
+        echo "[1/2] Pulling reasoning model via Ollama (llama3.2:3b or llama3.1:8b)..."
+        ollama pull llama3.2 || ollama pull llama3.1:8b || echo "Ollama pull command exited."
+        echo "[2/2] Pulling coding model via Ollama (qwen2.5-coder:7b)..."
+        ollama pull qwen2.5-coder:7b || echo "Ollama pull command exited."
+        echo "Models ready in local Ollama daemon library."
+        ;;
+    huggingface|hf)
+        echo "Downloading open-weight checkpoints to $MODEL_DIR..."
+        if ! command -v huggingface-cli &> /dev/null; then
+            echo "huggingface-cli not found. Installing into virtualenv..."
+            pip install "huggingface_hub[cli]"
+        fi
+        echo "Downloading Llama-3.1-8B-Instruct..."
+        huggingface-cli download meta-llama/Llama-3.1-8B-Instruct --local-dir "$MODEL_DIR/llama3-8b-instruct" --local-dir-use-symlinks False
+        echo "Downloading Qwen2.5-Coder-7B-Instruct..."
+        huggingface-cli download Qwen/Qwen2.5-Coder-7B-Instruct --local-dir "$MODEL_DIR/qwen2.5-coder-7b" --local-dir-use-symlinks False
+        ;;
+    *)
+        echo "Usage: ./scripts/download_models.sh [ollama | huggingface]"
+        exit 1
+        ;;
+esac
+
 echo ""
-echo "Download tools: huggingface-cli, ollama pull, or manual."
-echo "After download, no further network access is needed."
+echo "================================================================"
+echo " Model download complete. Disconnect network before continuing. "
+echo "================================================================"

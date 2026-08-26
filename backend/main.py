@@ -13,8 +13,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.api.routes_admin import router as admin_router
 from backend.api.routes_chat import router as chat_router
 from backend.api.routes_upload import router as upload_router
+from backend.audit.logger import setup_logging
 from backend.security.egress_monitor import EgressMonitor
 
+# Initialize structured logging on import
+setup_logging()
 logger = structlog.get_logger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -26,7 +29,7 @@ egress_monitor = EgressMonitor()
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Startup / shutdown lifecycle."""
-    logger.info("ramiel.startup", phase="0-skeleton")
+    logger.info("ramiel.startup", phase="1-chat")
     egress_monitor.start()
     yield
     egress_monitor.stop()
@@ -56,4 +59,4 @@ app.include_router(admin_router, prefix="/api/admin")
 @app.get("/health")
 async def health_check() -> dict[str, str]:
     """Liveness probe — confirms the API is running."""
-    return {"status": "ok", "service": "ramiel-backend", "phase": "0"}
+    return {"status": "ok", "service": "ramiel-backend", "phase": "1"}
