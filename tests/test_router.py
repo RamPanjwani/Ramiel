@@ -103,8 +103,18 @@ class TestModelRouter:
 
     def test_task_classification(self, router: ModelRouter) -> None:
         """Verify automatic prompt category classification."""
-        assert router.classify_task("Write a python script to parse CSV files") == "code"
+        assert (
+            router.classify_task("Write a python script to parse CSV files") == "code"
+        )
         assert router.classify_task("Analyze this P&ID drawing schematic") == "vision"
-        assert router.classify_task("Calculate the Reynolds number and friction factor") == "calc"
-        assert router.classify_task("Summarize the inspection report into an approval note") == "document"
+        assert (
+            router.classify_task("Calculate the Reynolds number and friction factor")
+            == "calc"
+        )
+        assert (
+            router.classify_task(
+                "Summarize the inspection report into an approval note"
+            )
+            == "document"
+        )
         assert router.classify_task("What is the capital of France?") == "general_qa"

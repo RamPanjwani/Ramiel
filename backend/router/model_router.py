@@ -97,7 +97,9 @@ class ModelRouter:
         if self.models:
             return self.models[0].id
 
-        raise ValueError(f"No models available in registry to handle task tag: '{task_tag}'")
+        raise ValueError(
+            f"No models available in registry to handle task tag: '{task_tag}'"
+        )
 
     def route_model(self, task_tag: str) -> ModelEntry:
         """Return the complete ModelEntry matching the task tag."""

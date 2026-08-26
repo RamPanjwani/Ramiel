@@ -21,7 +21,10 @@ class TestChatEndpoint:
         ) as ac:
             res = await ac.post(
                 "/api/chat",
-                json={"message": "Write a python script to parse logs", "session_id": "sess-test-1"},
+                json={
+                    "message": "Write a python script to parse logs",
+                    "session_id": "sess-test-1",
+                },
             )
             assert res.status_code == 200
             data = res.json()

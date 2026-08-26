@@ -74,7 +74,9 @@ class VLLMClient:
         }
 
         async with httpx.AsyncClient(timeout=self.timeout) as client:
-            logger.debug("vllm.request", model=model, url=f"{self.base_url}/chat/completions")
+            logger.debug(
+                "vllm.request", model=model, url=f"{self.base_url}/chat/completions"
+            )
             res = await client.post(
                 f"{self.base_url}/chat/completions",
                 json=payload,

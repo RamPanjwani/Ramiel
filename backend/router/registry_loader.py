@@ -51,7 +51,9 @@ def load_registry(path: str | Path = "config/model_registry.yaml") -> list[Model
     """
     config_path = Path(path)
     if not config_path.exists():
-        raise FileNotFoundError(f"Model registry configuration not found: {config_path}")
+        raise FileNotFoundError(
+            f"Model registry configuration not found: {config_path}"
+        )
 
     with open(config_path, encoding="utf-8") as f:
         raw_data = yaml.safe_load(f)

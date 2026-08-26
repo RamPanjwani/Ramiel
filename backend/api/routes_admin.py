@@ -43,15 +43,23 @@ async def list_models() -> dict[str, object]:
     return {
         "models": [model.model_dump() for model in _model_router.models],
         "serving_engines": {
-            "vllm": {"status": "online" if vllm_ok else "offline", "endpoint": _vllm_client.base_url},
-            "ollama": {"status": "online" if ollama_ok else "offline", "endpoint": _ollama_client.base_url},
+            "vllm": {
+                "status": "online" if vllm_ok else "offline",
+                "endpoint": _vllm_client.base_url,
+            },
+            "ollama": {
+                "status": "online" if ollama_ok else "offline",
+                "endpoint": _ollama_client.base_url,
+            },
         },
         "phase": "2",
     }
 
 
 @router.get("/route")
-async def route_preview(prompt: str = Query(..., description="Prompt to classify and route")) -> dict[str, object]:
+async def route_preview(
+    prompt: str = Query(..., description="Prompt to classify and route"),
+) -> dict[str, object]:
     """Simulate model routing for a given prompt."""
     task_tag = _model_router.classify_task(prompt)
     model_id = _model_router.route(task_tag)

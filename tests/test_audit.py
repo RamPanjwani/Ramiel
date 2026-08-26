@@ -48,27 +48,33 @@ class TestTraceStore:
         db_path = Path(tempfile.mkdtemp()) / "test_traces.db"
         store = TraceStore(db_path=db_path)
 
-        store.record({
-            "task_id": "t1",
-            "session_id": "s1",
-            "event_type": "step",
-            "prompt": "Step 1",
-            "response": "Done",
-        })
-        store.record({
-            "task_id": "t2",
-            "session_id": "s1",
-            "event_type": "step",
-            "prompt": "Step 2",
-            "response": "Done",
-        })
-        store.record({
-            "task_id": "t3",
-            "session_id": "s2",
-            "event_type": "step",
-            "prompt": "Other session",
-            "response": "Done",
-        })
+        store.record(
+            {
+                "task_id": "t1",
+                "session_id": "s1",
+                "event_type": "step",
+                "prompt": "Step 1",
+                "response": "Done",
+            }
+        )
+        store.record(
+            {
+                "task_id": "t2",
+                "session_id": "s1",
+                "event_type": "step",
+                "prompt": "Step 2",
+                "response": "Done",
+            }
+        )
+        store.record(
+            {
+                "task_id": "t3",
+                "session_id": "s2",
+                "event_type": "step",
+                "prompt": "Other session",
+                "response": "Done",
+            }
+        )
 
         s1_traces = store.query_session("s1")
         assert len(s1_traces) == 2

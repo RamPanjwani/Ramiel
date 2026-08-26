@@ -36,7 +36,9 @@ class ChatRequest(BaseModel):
     """Incoming chat prompt."""
 
     message: str = Field(..., description="User prompt text")
-    session_id: str | None = Field(default=None, description="Optional session tracking ID")
+    session_id: str | None = Field(
+        default=None, description="Optional session tracking ID"
+    )
     model_id: str | None = Field(
         default=None,
         description="Optional explicit model override (bypasses auto-routing)",
