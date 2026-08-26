@@ -2,12 +2,12 @@
 
 **Purpose:** running state of build. Update after every work session. AI/human reads this FIRST before touching code — don't re-read whole repo, don't guess state.
 
-**Last updated:** 2026-08-26 (Phase 3 complete)
+**Last updated:** 2026-08-26 (Phase 4 complete)
 
 ---
 
 ## Current Phase
-**Phase 3 — Tool Layer (Standalone)** (COMPLETE ✅) -> Next: **Phase 4 — Agent Orchestrator**
+**Phase 4 — Agent Orchestrator** (COMPLETE ✅) -> Next: **Phase 5 — Deliverables Engine (.docx, .pptx, .xlsx)**
 
 See Phases.md for phase definitions and exit criteria.
 
@@ -17,11 +17,11 @@ See Phases.md for phase definitions and exit criteria.
 
 | Field | Value |
 |---|---|
-| Current phase | Phase 3 (Complete) |
-| File/module in progress | none (Phase 3 done) |
-| Last completed file | `backend/tools/file_io.py`, `backend/tools/code_sandbox.py`, `backend/tools/spreadsheet.py`, `backend/tools/tool_registry.py`, `tests/test_tools.py` |
+| Current phase | Phase 4 (Complete) |
+| File/module in progress | none (Phase 4 done) |
+| Last completed file | `backend/orchestrator/planner.py`, `backend/orchestrator/state.py`, `backend/orchestrator/executor.py`, `backend/orchestrator/graph.py`, `tests/test_orchestrator.py` |
 | Blocked on | nothing |
-| Next action | Phase 4 — Planner, Executor, TaskState checkpointing, and ReAct execution loop |
+| Next action | Phase 5 — Deliverables generation: `docx_writer.py`, `pptx_writer.py`, `xlsx_writer.py`, and `tests/test_deliverables.py` |
 
 ---
 
@@ -45,7 +45,10 @@ See Phases.md for phase definitions and exit criteria.
 - `backend/tools/code_sandbox.py` — Isolated code execution engine enforcing `--network none`, timeout, and output capture.
 - `backend/tools/spreadsheet.py` — Excel spreadsheet reader, writer, and statistical calculation tool (`openpyxl` & `pandas`).
 - `backend/tools/tool_registry.py` — Central discovery, registration, and invocation registry for agent tools with JSON schema serialization.
-- `backend/orchestrator/*` — Stubs for Planner, Executor, TaskState, and LangGraph machine.
+- `backend/orchestrator/state.py` — Task lifecycle state management, SQLite checkpoint snapshots, observation accumulation, and human confirmation gates.
+- `backend/orchestrator/planner.py` — Structured multi-step plan generation with tool assignments and confirmation flags.
+- `backend/orchestrator/executor.py` — ReAct execution loop coordinating model routing, tool dispatch, bounded replanning, and confirmation gates.
+- `backend/orchestrator/graph.py` — State graph workflow execution and checkpoint resumption.
 - `backend/ocr_vision/*` — Stubs for OCRPipeline and DrawingReader.
 - `backend/knowledge_base/*` — Stubs for DocumentIngestor, Embedder, VectorStore, HybridSearch.
 - `backend/deliverables/*` — Stubs for DocxWriter, PptxWriter, XlsxWriter.
@@ -59,20 +62,21 @@ See Phases.md for phase definitions and exit criteria.
 - `tests/test_chat_endpoint.py` — Integration tests for auto-routing (`code` -> `coder-primary`, `document` -> `reasoning-primary`), `/api/admin/route`, and trace logging.
 - `tests/test_router.py` — Unit tests for task classification, registry validation, and fallback chains.
 - `tests/test_tools.py` — Unit tests for file boundary validation, code sandbox execution & timeout, and spreadsheet operations.
+- `tests/test_orchestrator.py` — Unit and integration tests for Planner, TaskState, Executor, confirmation gates, and OrchestrationGraph.
 
 ---
 
 ## In Progress 🔧
-_(none — Phase 3 completed)_
+_(none — Phase 4 completed)_
 
 ---
 
-## Not Started (Phase 4 upcoming)
-- [ ] Implement `backend/orchestrator/planner.py` for structured multi-step plan generation
-- [ ] Implement `backend/orchestrator/executor.py` for ReAct-style plan execution loop with tool invocation
-- [ ] Implement `backend/orchestrator/state.py` for task state checkpointing and human-in-the-loop confirmation gates
-- [ ] Implement `backend/orchestrator/graph.py` state machine
-- [ ] Un-skip and implement `tests/test_orchestrator.py`
+## Not Started (Phase 5 upcoming)
+- [ ] Implement `backend/deliverables/docx_writer.py` for professional executive approval notes
+- [ ] Implement `backend/deliverables/pptx_writer.py` for briefing decks
+- [ ] Implement `backend/deliverables/xlsx_writer.py` for calculation audit workbooks
+- [ ] Create `tests/test_deliverables.py`
+- [ ] Connect deliverables output to frontend `DeliverablePreview` pane
 
 ---
 
@@ -81,6 +85,7 @@ _(record any decision that deviates from or finalizes something left open in PRD
 
 | Date | Decision | Why | Doc affected |
 |---|---|---|---|
+| 2026-08-26 | SQLite checkpointing in `backend/orchestrator/state.py` | Allows full offline task pause, inspection, and human confirmation resumption | Architecture.md §6 |
 | 2026-08-26 | Added `openpyxl`, `pandas`, `types-openpyxl`, `pandas-stubs` | Required for spreadsheet tool operations and formula/data evaluation | backend/requirements.txt |
 | 2026-08-26 | Rule-based regex task classifier in `backend/router/model_router.py` | Fast, deterministic, zero-inference-overhead task classification across `code`, `vision`, `calc`, `document`, and `general_qa` | Architecture.md §4 |
 | 2026-08-26 | SQLite chosen for local trace store (`backend/audit/trace_store.py`) | Zero external dependencies, fast queryable relational format, robust on-prem persistence | Architecture.md, Rules.md |
@@ -99,7 +104,8 @@ _(record any decision that deviates from or finalizes something left open in PRD
 ## Session Log
 _(short entries, newest on top — what happened, what's next. Keeps context across chat switches without re-reading whole codebase)_
 
-- **2026-08-26 (Phase 3 Complete)** — Implemented standalone tool layer: `ScopedFileIO` (permission-checked against `tool_permissions.yaml`), `CodeSandbox` (`--network none` Docker + timeout management), `SpreadsheetTool` (`openpyxl` & `pandas` tabular inspection & stats), and `ToolRegistry` (tool registration, discovery, schema export, and dispatch). All 51 tests passing. Next: Phase 4 (Agent Orchestrator).
+- **2026-08-26 (Phase 4 Complete)** — Built `backend/orchestrator/state.py` (TaskState, SQLite checkpoints, confirmation gating), `backend/orchestrator/planner.py` (structured multi-step plan generation), `backend/orchestrator/executor.py` (ReAct loop, tool coordination, bounded replanning), and `backend/orchestrator/graph.py` (workflow state graph). Added complete unit & integration tests (`test_orchestrator.py`) — all 58 tests passing across test suite. Mypy and ruff clean. Next: Phase 5 (Deliverables Engine).
+- **2026-08-26 (Phase 3 Complete)** — Implemented standalone tool layer: `ScopedFileIO` (permission-checked against `tool_permissions.yaml`), `CodeSandbox` (`--network none` Docker + timeout management), `SpreadsheetTool` (`openpyxl` & `pandas` tabular inspection & stats), and `ToolRegistry` (tool registration, discovery, schema export, and dispatch). All 51 tests passing.
 - **2026-08-26 (Phase 2 Complete)** — Built `backend/router/registry_loader.py` and `backend/router/model_router.py`. Implemented task classification (`code`, `document`, `vision`, `calc`, `general_qa`), declarative registry lookup, and fallback chains. Connected auto-routing to `/api/chat`, `/api/admin/models`, and added `/api/admin/route` preview endpoint. Updated frontend `TaskTrace.tsx` with live model roster and trace stream. Added comprehensive unit & integration tests (`test_router.py`, `test_chat_endpoint.py`) — 39 tests passing.
 - **2026-08-26 (Phase 1 Complete)** — Implemented structured audit logger (structlog) and SQLite trace store (`TraceStore`). Implemented local model serving clients (`VLLMClient`, `OllamaClient`). Connected `/api/chat` with local model dispatch, audit trace logging, and offline fallback guidance. Added `/api/admin/traces`. Added comprehensive tests (`test_audit.py`, `test_serving.py`, `test_chat_endpoint.py`) — all 28 tests passing. Mypy and ruff clean.
 - **2026-08-26 (Phase 0 Complete)** — Git initialized. Full monorepo scaffolding created: config YAMLs, FastAPI backend with egress monitor and all module stubs, React+Vite+Tailwind frontend with instrument panel design tokens, sandbox container, test suite (17 passed), Docker Compose, and helper scripts. All type checks (mypy) and lints (ruff) green.
