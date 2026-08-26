@@ -1,0 +1,9 @@
+Tag,Equipment_Type,Parameter,Design_Limit,Observed_Value,Unit,Status
+V-101,Control Valve,Inlet Pressure,15.0,12.2,bar,ACCEPTABLE
+V-102,Control Valve,Bypass Pressure,15.0,17.2,bar,FAIL
+P-201,Centrifugal Pump,Vibration RMS,4.5,4.1,mm/s,ACCEPTABLE
+P-201,Centrifugal Pump,Bearing Temp,75.0,68.0,deg C,ACCEPTABLE
+TK-301,Storage Vessel,Min Wall Thickness,15.0,18.2,mm,ACCEPTABLE
+PT-102,Pressure Transmitter,Signal Accuracy,0.5,0.12,%,ACCEPTABLE
+TT-101,Temperature Transmitter,Signal Accuracy,0.5,0.08,%,ACCEPTABLE
+FT-201,Flow Transmitter,Signal Accuracy,1.0,0.35,%,ACCEPTABLE

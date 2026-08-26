@@ -1,0 +1,27 @@
+# ==============================================================================
+# PIPING & INSTRUMENTATION DIAGRAM (P&ID) SCHEMATIC
+# Drawing Ref: DWG-GPC-U4-PID-001 Rev 3
+# System: Unit 4 Separation & Bypass Header
+# ==============================================================================
+#
+#   [FEED HEADER 10"-HC-1001]
+#             |
+#          [V-101] (Separator Inlet Valve)
+#             |
+#       +-----+-----+
+#       |           |
+#   [TK-301]     [Line 6"-HC-1004]
+# (Flash Vessel)    |
+#       |        [V-102] (Bypass Control Valve - Overpressure Risk)
+#       |           |
+#       |        [PT-102] (Pressure Transmitter)
+#       |           |
+#       +-----+-----+
+#             |
+#          [P-201] (Condensate Booster Pump)
+#             |
+#          [FT-201] (Flow Transmitter)
+#             |
+#   [PRODUCT EXPORT 8"-HC-2001]
+#
+# ==============================================================================

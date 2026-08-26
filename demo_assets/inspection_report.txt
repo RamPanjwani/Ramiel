@@ -1,0 +1,38 @@
+# ==============================================================================
+# GAS PROCESSING FACILITY — UNIT 4 OVERHAUL INSPECTION REPORT
+# Facility: North Field Gas Processing Complex (NF-GPC)
+# Unit: Condensate & Gas Separation Unit 4
+# Inspection Date: 2026-08-15
+# Lead Inspector: Senior Plant Integrity Inspector #7042
+# ==============================================================================
+
+1. OVERVIEW & SCOPE
+The scheduled quadrennial overhaul inspection was conducted on separation train 4.
+All static vessels, control valves, rotating pumps, and associated instrumentation
+were nondestructively tested (NDT) via ultrasonic thickness gauging and acoustic emission.
+
+2. EQUIPMENT OBSERVATIONS
+- Valve V-101 (High Pressure Separator Inlet):
+  Nominal design pressure: 15.0 bar. Observed operating pressure: 12.2 bar.
+  Seat leakage: Zero. Valve travel: Nominal 100%. Status: ACCEPTABLE.
+
+- Valve V-102 (Acid Gas Bypass Control Valve):
+  Nominal design pressure: 15.0 bar. Observed operating pressure: 17.2 bar (EXCEEDS LIMIT by 14.7%).
+  Severe acoustic emission indicating localized cavitation and seal erosion.
+  Recommendation: IMMEDIATE REPLACEMENT / REFURBISHMENT REQUIRED before startup.
+
+- Pump P-201 (Condensate Booster Pump):
+  Operating vibration: 4.1 mm/s RMS (Design limit: 4.5 mm/s RMS).
+  Bearing temperature: 68 deg C. Status: ACCEPTABLE (Schedule monitoring in 30 days).
+
+- Vessel TK-301 (Flash Gas Accumulator):
+  Wall thickness: 18.2 mm (Minimum allowable thickness: 15.0 mm). Corrosion rate: 0.1 mm/yr.
+  Status: FIT FOR CONTINUED SERVICE.
+
+- Line 6"-HC-1004 (Hydrocarbon Transfer Header):
+  NDT weld scans clean. No hydrogen-induced cracking (HIC) detected.
+
+3. RECOMMENDATIONS & SIGN-OFF
+1. Halt commissioning of Unit 4 train until Valve V-102 is replaced with an upgraded Inconel trim valve.
+2. Re-calculate hydraulic pressure drop and safety relief flow across V-102 bypass loop.
+3. Submit Executive Approval Note for emergency spare procurement ($42,000 budget authorization).

@@ -1,26 +1,39 @@
 #!/bin/bash
-# Ramiel — Demo Scenario Runner
-# Runs all 5 PRD acceptance criteria scenarios in sequence.
-#
-# Phase 0: stub — full scenarios wired in Phase 8+.
+# Ramiel — Flagship Scenario & System Demo Runner
+# Executes all 5 PRD acceptance criteria scenarios in sequence completely offline.
 
 set -euo pipefail
 
-echo "=== Ramiel Demo Runner ==="
-echo ""
-echo "Scenario 1: Model Auto-Selection ............. [Phase 2 — not yet]"
-echo "Scenario 2: End-to-End Agentic Task .......... [Phase 8 — not yet]"
-echo "Scenario 3: Coding Task + Sandbox ............ [Phase 4 — not yet]"
-echo "Scenario 4: Multimodal Drawing Analysis ...... [Phase 6 — not yet]"
-echo "Scenario 5: Zero-Egress Proof ................ [Phase 0 — partial]"
+echo "========================================================"
+echo "    RAMIEL — Sovereign Air-Gapped AI Engineering Workbench"
+echo "========================================================"
 echo ""
 
-# Phase 0: can at least verify backend is up and egress is clean
-echo "--- Scenario 5 (partial): Checking backend health ---"
-HEALTH=$(curl -s http://127.0.0.1:8000/health 2>/dev/null || echo '{"error":"backend not running"}')
-echo "Backend: $HEALTH"
+echo "[1/5] Scenario 1: Model Auto-Selection & Task Routing"
+echo "      Testing automatic classification and fallback chains..."
+pytest tests/test_router.py -q
 
-EGRESS=$(curl -s http://127.0.0.1:8000/api/admin/egress 2>/dev/null || echo '{"error":"backend not running"}')
-echo "Egress:  $EGRESS"
 echo ""
-echo "=== Demo run complete ==="
+echo "[2/5] Scenario 2: Standalone Tool Layer & Sandbox Isolation"
+echo "      Executing ScopedFileIO, CodeSandbox (--network none), and SpreadsheetTool..."
+pytest tests/test_tools.py -q
+
+echo ""
+echo "[3/5] Scenario 3: Agent Orchestration & Checkpoint Gates"
+echo "      Testing Planner, Executor ReAct loop, and Human Confirmation Gates..."
+pytest tests/test_orchestrator.py -q
+
+echo ""
+echo "[4/5] Scenario 4: Multimodal (OCR + Drawing Parser) & Knowledge Base"
+echo "      Extracting P&ID equipment tags and running Hybrid RAG queries..."
+pytest tests/test_vision.py tests/test_knowledge_base.py -q
+
+echo ""
+echo "[5/5] Scenario 5: End-to-End Flagship Overhaul Scenario & Zero-Egress Proof"
+echo "      Generating Tri-Format Deliverables (.docx, .pptx, .xlsx) with 0 network leaks..."
+pytest tests/test_e2e_scenario.py tests/test_egress_monitor.py -q
+
+echo ""
+echo "========================================================"
+echo "    ALL 5 SCENARIOS VERIFIED GREEN — ZERO NETWORK EGRESS"
+echo "========================================================"

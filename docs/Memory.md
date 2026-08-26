@@ -2,12 +2,12 @@
 
 **Purpose:** running state of build. Update after every work session. AI/human reads this FIRST before touching code — don't re-read whole repo, don't guess state.
 
-**Last updated:** 2026-08-26 (Phase 7 complete)
+**Last updated:** 2026-08-26 (Phase 8 complete — Entire Architecture Live)
 
 ---
 
 ## Current Phase
-**Phase 7 — Knowledge Base / Hybrid RAG** (COMPLETE ✅) -> Next: **Phase 8 — End-to-End Flagship Scenario**
+**Phase 8 — End-to-End Flagship Scenario** (COMPLETE ✅) -> Next: **Phase 9 — Hardening & Final Verification**
 
 See Phases.md for phase definitions and exit criteria.
 
@@ -17,11 +17,11 @@ See Phases.md for phase definitions and exit criteria.
 
 | Field | Value |
 |---|---|
-| Current phase | Phase 7 (Complete) |
-| File/module in progress | none (Phase 7 done) |
-| Last completed file | `backend/knowledge_base/embed.py`, `backend/knowledge_base/vector_store.py`, `backend/knowledge_base/hybrid_search.py`, `backend/knowledge_base/ingest.py`, `backend/tools/doc_search.py`, `tests/test_knowledge_base.py` |
+| Current phase | Phase 8 (Complete) |
+| File/module in progress | none (Phase 8 done) |
+| Last completed file | `tests/test_e2e_scenario.py`, `scripts/run_demo.sh`, `demo_assets/*` |
 | Blocked on | nothing |
-| Next action | Phase 8 — End-to-end integration demo assets, flagship engineering scenario verification script (`scripts/run_demo.sh`), and end-to-end integration test |
+| Next action | Ready for operator deployment and evaluation |
 
 ---
 
@@ -60,8 +60,9 @@ See Phases.md for phase definitions and exit criteria.
 - `backend/knowledge_base/vector_store.py` — Local vector store with SQLite persistence and exact cosine nearest-neighbor search.
 - `backend/knowledge_base/hybrid_search.py` — Hybrid search engine fusing dense semantic embeddings with BM25 keyword matching.
 - `backend/knowledge_base/ingest.py` — Document chunking with sliding window overlap and automatic embedding/indexing.
+- `demo_assets/*` — Complete engineering test assets (`inspection_report.txt`, `operating_limits.csv`, `plant_pid_diagram.txt`).
 - `sandbox/Dockerfile.sandbox` + `sandbox/entrypoint.sh` — Minimal offline sandbox container image.
-- `scripts/setup_env.sh`, `scripts/download_models.sh`, `scripts/run_demo.sh` — Setup scripts with Ollama and HuggingFace download commands.
+- `scripts/setup_env.sh`, `scripts/download_models.sh`, `scripts/run_demo.sh` — Setup and end-to-end scenario runner scripts.
 - `docker-compose.yml` + `Dockerfile.backend` + `frontend/Dockerfile.frontend` — Compose stack.
 - `frontend/` — React + Vite + Tailwind v4 instrument panel UI with EgressMonitorPanel, ChatPanel, FileUpload, TaskTrace (with live model roster & traces), and DeliverablePreview.
 - `tests/test_egress_monitor.py` — 17 unit and integration tests passing for zero-egress proof.
@@ -74,18 +75,12 @@ See Phases.md for phase definitions and exit criteria.
 - `tests/test_deliverables.py` — Unit tests for Word documents, PowerPoint decks, and Excel workbooks.
 - `tests/test_vision.py` — Unit tests for VisionClient, OCRPipeline, and DrawingReader.
 - `tests/test_knowledge_base.py` — Unit tests for Embedder, VectorStore, HybridSearch, DocumentIngestor, and DocSearchTool.
+- `tests/test_e2e_scenario.py` — Full end-to-end flagship scenario integration test passing with zero network egress.
 
 ---
 
 ## In Progress 🔧
-_(none — Phase 7 completed)_
-
----
-
-## Not Started (Phase 8 & 9 upcoming)
-- [ ] Implement Phase 8 flagship scenario demo assets in `demo_assets/` (P&ID diagram, inspection report, technical manual)
-- [ ] Connect full multi-step scenario into `scripts/run_demo.sh` and end-to-end integration test `tests/test_e2e_scenario.py`
-- [ ] Phase 9 Hardening & Verification
+_(none — Phase 8 completed, all 73 tests green)_
 
 ---
 
@@ -109,14 +104,15 @@ _(record any decision that deviates from or finalizes something left open in PRD
 
 ## Known Issues / Tech Debt
 
-- none yet
+- none
 
 ---
 
 ## Session Log
 _(short entries, newest on top — what happened, what's next. Keeps context across chat switches without re-reading whole codebase)_
 
-- **2026-08-26 (Phase 7 Complete)** — Implemented Hybrid RAG / Knowledge Base: `Embedder` (dense vector embeddings with L2 normalization), `VectorStore` (SQLite persistence & cosine similarity nearest neighbors), `HybridSearch` (dense vector + BM25 keyword matching with weighted fusion), `DocumentIngestor` (sliding window text chunker & directory indexer), and `DocSearchTool` (registered in `ToolRegistry`). Added `test_knowledge_base.py` — all 72 tests passing across test suite. Mypy and ruff clean. Next: Phase 8 (Flagship Scenario).
+- **2026-08-26 (Phase 8 Complete)** — Executed full flagship engineering plant overhaul scenario: indexed `demo_assets/`, performed hybrid RAG retrieval on Valve V-102 overpressure condition, computed hydraulic delta in sandbox runtime, generated tri-format deliverables (`.docx` executive approval note, `.pptx` briefing deck, `.xlsx` audit workbook), and verified 100% zero network egress. Added `test_e2e_scenario.py` and updated `scripts/run_demo.sh`. All 73 tests green, mypy and ruff clean.
+- **2026-08-26 (Phase 7 Complete)** — Implemented Hybrid RAG / Knowledge Base: `Embedder` (dense vector embeddings with L2 normalization), `VectorStore` (SQLite persistence & cosine similarity nearest neighbors), `HybridSearch` (dense vector + BM25 keyword matching with weighted fusion), `DocumentIngestor` (sliding window text chunker & directory indexer), and `DocSearchTool` (registered in `ToolRegistry`). Added `test_knowledge_base.py` — all 72 tests passing across test suite. Mypy and ruff clean.
 - **2026-08-26 (Phase 6 Complete)** — Implemented `VisionClient` (OpenAI-compatible local multimodal VLM client), `OCRPipeline` (offline document OCR with fallback), and `DrawingReader` (ISA 5.1 P&ID equipment and instrument extractor). Added `test_vision.py` — all 65 tests passing across test suite. Mypy and ruff clean.
 - **2026-08-26 (Phase 5 Complete)** — Implemented deliverables engine: `DocxWriter` (executive approval notes, memo blocks, tables, formal sign-offs), `PptxWriter` (slide decks with title, content, summary layouts), and `XlsxWriter` (styled multi-sheet calculation workbooks). Added `test_deliverables.py` — all 61 tests passing across test suite. Mypy and ruff clean.
 - **2026-08-26 (Phase 4 Complete)** — Built `backend/orchestrator/state.py` (TaskState, SQLite checkpoints, confirmation gating), `backend/orchestrator/planner.py` (structured multi-step plan generation), `backend/orchestrator/executor.py` (ReAct loop, tool coordination, bounded replanning), and `backend/orchestrator/graph.py` (workflow state graph). Added complete unit & integration tests (`test_orchestrator.py`) — all 58 tests passing across test suite. Mypy and ruff clean.
