@@ -3,16 +3,16 @@
 FastAPI application entrypoint.
 """
 
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import AsyncIterator
 
 import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from backend.api.routes_admin import router as admin_router
 from backend.api.routes_chat import router as chat_router
 from backend.api.routes_upload import router as upload_router
-from backend.api.routes_admin import router as admin_router
 from backend.security.egress_monitor import EgressMonitor
 
 logger = structlog.get_logger(__name__)

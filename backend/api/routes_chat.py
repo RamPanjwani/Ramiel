@@ -33,8 +33,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
     """
     return ChatResponse(
         reply=(
-            "Ramiel is running (Phase 0 skeleton). "
-            "Model serving not yet connected."
+            "Ramiel is running (Phase 0 skeleton). Model serving not yet connected."
         ),
         session_id=request.session_id or "stub-session",
         model_used=None,

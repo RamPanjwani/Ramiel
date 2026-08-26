@@ -16,9 +16,7 @@ class DocxWriter:
     def __init__(self, default_output_dir: str = "data/uploads") -> None:
         self.default_output_dir = default_output_dir
 
-    def generate(
-        self, findings: dict[str, Any], template: str | None = None
-    ) -> str:
+    def generate(self, findings: dict[str, Any], template: str | None = None) -> str:
         """Generate a Word document from structured findings and an optional template.
 
         Args:

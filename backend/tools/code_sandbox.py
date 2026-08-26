@@ -19,9 +19,7 @@ class CodeSandbox:
     ) -> None:
         self.config_path = config_path
 
-    async def execute(
-        self, code: str, language: str = "python"
-    ) -> dict[str, Any]:
+    async def execute(self, code: str, language: str = "python") -> dict[str, Any]:
         """Execute source code in an isolated container and capture outputs.
 
         Args:

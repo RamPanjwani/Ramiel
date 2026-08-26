@@ -25,7 +25,9 @@ class OrchestrationGraph:
         Raises:
             NotImplementedError: Implementation pending Phase 4.
         """
-        raise NotImplementedError("OrchestrationGraph.build_graph is not yet implemented.")
+        raise NotImplementedError(
+            "OrchestrationGraph.build_graph is not yet implemented."
+        )
 
     async def run(self, initial_state: dict[str, Any]) -> dict[str, Any]:
         """Execute the state graph workflow given an initial state.

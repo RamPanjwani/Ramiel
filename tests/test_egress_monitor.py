@@ -17,10 +17,7 @@ import time
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from backend.security.egress_monitor import EgressMonitor, _is_loopback
-
 
 # ---------------------------------------------------------------------------
 # Unit tests for helper functions
@@ -79,9 +76,7 @@ class TestEgressMonitorClean:
         assert status["violation_count"] == 0
 
     @patch("backend.security.egress_monitor.psutil.net_connections")
-    def test_loopback_only_no_violations(
-        self, mock_conns: MagicMock
-    ) -> None:
+    def test_loopback_only_no_violations(self, mock_conns: MagicMock) -> None:
         """Simulate connections that are all loopback — no violations."""
         conn = MagicMock()
         conn.raddr = MagicMock()
@@ -96,9 +91,7 @@ class TestEgressMonitorClean:
         assert len(monitor.violations) == 0
 
     @patch("backend.security.egress_monitor.psutil.net_connections")
-    def test_no_remote_addr_no_violation(
-        self, mock_conns: MagicMock
-    ) -> None:
+    def test_no_remote_addr_no_violation(self, mock_conns: MagicMock) -> None:
         """Connections with no raddr (listening sockets) are safe."""
         conn = MagicMock()
         conn.raddr = None
@@ -114,9 +107,7 @@ class TestEgressMonitorViolation:
     """Test monitor catches external connections."""
 
     @patch("backend.security.egress_monitor.psutil.net_connections")
-    def test_external_connection_flagged(
-        self, mock_conns: MagicMock
-    ) -> None:
+    def test_external_connection_flagged(self, mock_conns: MagicMock) -> None:
         """Deliberate external IP is caught and recorded."""
         conn = MagicMock()
         conn.raddr = MagicMock()
@@ -139,9 +130,7 @@ class TestEgressMonitorViolation:
         assert v["process_name"] == "test-process"
 
     @patch("backend.security.egress_monitor.psutil.net_connections")
-    def test_violation_persisted_to_log(
-        self, mock_conns: MagicMock
-    ) -> None:
+    def test_violation_persisted_to_log(self, mock_conns: MagicMock) -> None:
         """Violation is written to the log file."""
         conn = MagicMock()
         conn.raddr = MagicMock()
@@ -164,9 +153,7 @@ class TestEgressMonitorViolation:
         assert line["remote_addr"] == "104.26.10.1"
 
     @patch("backend.security.egress_monitor.psutil.net_connections")
-    def test_status_shows_violation(
-        self, mock_conns: MagicMock
-    ) -> None:
+    def test_status_shows_violation(self, mock_conns: MagicMock) -> None:
         """get_status reports VIOLATION_DETECTED after a catch."""
         conn = MagicMock()
         conn.raddr = MagicMock()
@@ -187,9 +174,7 @@ class TestEgressMonitorLifecycle:
     """Test start/stop lifecycle."""
 
     def test_start_and_stop(self) -> None:
-        monitor = EgressMonitor(
-            poll_interval=0.1, log_dir=tempfile.mkdtemp()
-        )
+        monitor = EgressMonitor(poll_interval=0.1, log_dir=tempfile.mkdtemp())
         monitor.start()
         assert monitor.running is True
         time.sleep(0.3)
