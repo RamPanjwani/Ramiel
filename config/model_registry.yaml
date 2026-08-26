@@ -1,0 +1,43 @@
+# Ramiel — Model Registry
+# Declarative model configuration. No model IDs hardcoded in business logic.
+# Router reads this file at startup and dispatches tasks by tag matching.
+# Add new models here — no code changes required.
+
+models:
+  # --- Reasoning / General ---
+  - id: reasoning-primary
+    engine: vllm
+    path: /models/llama3-70b-instruct
+    task_tags: [document, general_qa, planning, calc]
+    min_vram_gb: 80
+    fallback: reasoning-fallback
+
+  - id: reasoning-fallback
+    engine: ollama
+    path: /models/llama3-8b-instruct
+    task_tags: [document, general_qa, planning, calc]
+    min_vram_gb: 12
+    fallback: null
+
+  # --- Coding ---
+  - id: coder-primary
+    engine: vllm
+    path: /models/qwen2.5-coder-32b
+    task_tags: [code]
+    min_vram_gb: 40
+    fallback: coder-fallback
+
+  - id: coder-fallback
+    engine: ollama
+    path: /models/qwen2.5-coder-7b
+    task_tags: [code]
+    min_vram_gb: 16
+    fallback: null
+
+  # --- Vision / OCR ---
+  - id: vision-primary
+    engine: vllm
+    path: /models/qwen2-vl-7b
+    task_tags: [vision, drawing_read]
+    min_vram_gb: 16
+    fallback: null

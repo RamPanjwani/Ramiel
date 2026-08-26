@@ -1,0 +1,14 @@
+# Ramiel — Network Policy
+# Egress enforcement configuration for the air-gap monitor.
+# Only loopback is permitted. Everything else is blocked and logged.
+
+egress:
+  enforce_airgap: true
+  allowed_interfaces:
+    - lo                        # 127.0.0.1 loopback only
+  blocked_subnets:
+    - "0.0.0.0/0"               # Block ALL outbound by default
+  monitor:
+    poll_interval_seconds: 1
+    log_path: "logs/egress/network_activity.log"
+    alert_on_outbound_attempt: true

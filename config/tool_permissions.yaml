@@ -1,0 +1,22 @@
+# Ramiel — Tool Permissions
+# Controls filesystem access boundaries and sandbox resource limits.
+# Referenced by tool layer and sandbox executor at runtime.
+
+filesystem:
+  allowed_read_roots:
+    - data/kb_raw
+    - data/uploads
+    - demo_assets
+  allowed_write_roots:
+    - data/uploads
+    - logs/audit
+
+sandbox:
+  cpu_limit: "2.0"
+  memory_limit: "4g"
+  timeout_seconds: 60
+  network_mode: "none"          # NON-NEGOTIABLE — Rules.md §1.5
+  temp_dir: "/tmp/sandbox_scratch"
+  allowed_languages:
+    - python
+    - bash
