@@ -1,6 +1,6 @@
 """Tool Registry for Ramiel.
 
-Phase 3: Tool Layer.
+Phase 3: Tool Layer & Phase 7: Knowledge Base.
 Maintains a registry of all available tools, their schemas, permission requirements,
 and invocation interfaces for the agent orchestrator.
 """
@@ -12,7 +12,11 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
 
+from backend.deliverables.docx_writer import DocxWriter
+from backend.deliverables.pptx_writer import PptxWriter
+from backend.deliverables.xlsx_writer import XlsxWriter
 from backend.tools.code_sandbox import CodeSandbox
+from backend.tools.doc_search import DocSearchTool
 from backend.tools.file_io import ScopedFileIO
 from backend.tools.spreadsheet import SpreadsheetTool
 
@@ -25,6 +29,7 @@ class ToolDefinition:
     description: str
     handler: Callable[..., Any]
     parameters: dict[str, Any] = field(default_factory=dict)
+    required_permissions: list[str] = field(default_factory=list)
 
 
 class ToolRegistry:
@@ -40,6 +45,10 @@ class ToolRegistry:
         file_io = ScopedFileIO()
         sandbox = CodeSandbox()
         spreadsheet = SpreadsheetTool()
+        doc_search = DocSearchTool()
+        docx_writer = DocxWriter()
+        pptx_writer = PptxWriter()
+        xlsx_writer = XlsxWriter()
 
         self.register(
             name="file_read",
@@ -105,6 +114,67 @@ class ToolRegistry:
                 "path": {"type": "string", "description": "Path to .xlsx file"}
             },
         )
+        self.register(
+            name="doc_search",
+            description="Search local knowledge base with hybrid dense vector + BM25 keyword matching.",
+            handler=doc_search.search,
+            parameters={
+                "query": {
+                    "type": "string",
+                    "description": "Search query or technical term",
+                },
+                "top_k": {
+                    "type": "integer",
+                    "description": "Max results to return",
+                    "default": 5,
+                },
+            },
+        )
+        self.register(
+            name="docx_generate",
+            description="Generate a formatted Word .docx approval note or report.",
+            handler=docx_writer.generate,
+            parameters={
+                "findings": {
+                    "type": "object",
+                    "description": "Structured findings dictionary",
+                },
+                "filename": {
+                    "type": "string",
+                    "description": "Optional output filename",
+                },
+            },
+        )
+        self.register(
+            name="pptx_generate",
+            description="Generate a formatted PowerPoint .pptx briefing presentation.",
+            handler=pptx_writer.generate,
+            parameters={
+                "content": {
+                    "type": "object",
+                    "description": "Structured slides content dictionary",
+                },
+                "filename": {
+                    "type": "string",
+                    "description": "Optional output filename",
+                },
+            },
+        )
+        self.register(
+            name="xlsx_generate",
+            description="Generate a styled Excel .xlsx calculation workbook.",
+            handler=xlsx_writer.generate,
+            parameters={
+                "data": {
+                    "type": "object",
+                    "description": "Structured workbook sheets data",
+                },
+                "filename": {
+                    "type": "string",
+                    "description": "Optional output filename",
+                },
+            },
+        )
 
     def register(
         self,
@@ -112,38 +182,44 @@ class ToolRegistry:
         description: str,
         handler: Callable[..., Any],
         parameters: dict[str, Any] | None = None,
+        required_permissions: list[str] | None = None,
     ) -> None:
-        """Register a new tool."""
+        """Register a tool with its metadata, parameters, and handler callable."""
         self._tools[name] = ToolDefinition(
             name=name,
             description=description,
             handler=handler,
             parameters=parameters or {},
+            required_permissions=required_permissions or [],
         )
 
     def get_tool(self, name: str) -> ToolDefinition:
-        """Retrieve a registered tool definition by name."""
+        """Retrieve a registered tool by name."""
         if name not in self._tools:
-            raise KeyError(
-                f"Tool '{name}' not found. Registered tools: {list(self._tools.keys())}"
-            )
+            raise KeyError(f"Tool not registered: '{name}'")
         return self._tools[name]
 
     def list_tools(self) -> list[str]:
-        """List the identifiers of all registered tools."""
-        return list(self._tools.keys())
+        """Return the names of all registered tools."""
+        return sorted(self._tools.keys())
 
     def get_schemas(self) -> list[dict[str, Any]]:
-        """Return tool definitions formatted for LLM tool-calling schemas."""
+        """Return OpenAI / Ollama compatible JSON tool schemas."""
         schemas: list[dict[str, Any]] = []
-        for name, tool in self._tools.items():
+        for name, tool in sorted(self._tools.items()):
             schemas.append(
                 {
                     "name": name,
                     "description": tool.description,
-                    "parameters": {
-                        "type": "object",
-                        "properties": tool.parameters,
+                    "parameters": tool.parameters,
+                    "type": "function",
+                    "function": {
+                        "name": name,
+                        "description": tool.description,
+                        "parameters": {
+                            "type": "object",
+                            "properties": tool.parameters,
+                        },
                     },
                 }
             )

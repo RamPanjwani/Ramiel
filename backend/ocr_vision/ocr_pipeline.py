@@ -28,7 +28,9 @@ class OCRPipeline:
         try:
             from paddleocr import PaddleOCR  # type: ignore[import-not-found]
 
-            self._engine = PaddleOCR(use_angle_cls=True, lang="en", use_gpu=self.use_gpu)
+            self._engine = PaddleOCR(
+                use_angle_cls=True, lang="en", use_gpu=self.use_gpu
+            )
             logger.info("ocr_pipeline.paddleocr_initialized")
         except (ImportError, ModuleNotFoundError, RuntimeError, OSError) as exc:
             logger.info("ocr_pipeline.paddleocr_offline_mode", reason=str(exc))

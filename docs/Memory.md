@@ -2,12 +2,12 @@
 
 **Purpose:** running state of build. Update after every work session. AI/human reads this FIRST before touching code — don't re-read whole repo, don't guess state.
 
-**Last updated:** 2026-08-26 (Phase 6 complete)
+**Last updated:** 2026-08-26 (Phase 7 complete)
 
 ---
 
 ## Current Phase
-**Phase 6 — OCR & Vision Pipeline** (COMPLETE ✅) -> Next: **Phase 7 — Knowledge Base / Hybrid RAG**
+**Phase 7 — Knowledge Base / Hybrid RAG** (COMPLETE ✅) -> Next: **Phase 8 — End-to-End Flagship Scenario**
 
 See Phases.md for phase definitions and exit criteria.
 
@@ -17,11 +17,11 @@ See Phases.md for phase definitions and exit criteria.
 
 | Field | Value |
 |---|---|
-| Current phase | Phase 6 (Complete) |
-| File/module in progress | none (Phase 6 done) |
-| Last completed file | `backend/serving/vision_client.py`, `backend/ocr_vision/ocr_pipeline.py`, `backend/ocr_vision/drawing_reader.py`, `tests/test_vision.py` |
+| Current phase | Phase 7 (Complete) |
+| File/module in progress | none (Phase 7 done) |
+| Last completed file | `backend/knowledge_base/embed.py`, `backend/knowledge_base/vector_store.py`, `backend/knowledge_base/hybrid_search.py`, `backend/knowledge_base/ingest.py`, `backend/tools/doc_search.py`, `tests/test_knowledge_base.py` |
 | Blocked on | nothing |
-| Next action | Phase 7 — Knowledge base: `embed.py`, `vector_store.py`, `hybrid_search.py`, `ingest.py`, and `tests/test_knowledge_base.py` |
+| Next action | Phase 8 — End-to-end integration demo assets, flagship engineering scenario verification script (`scripts/run_demo.sh`), and end-to-end integration test |
 
 ---
 
@@ -45,7 +45,8 @@ See Phases.md for phase definitions and exit criteria.
 - `backend/tools/file_io.py` — Directory-scoped file reader, writer, and directory browser with path-traversal protection against `tool_permissions.yaml`.
 - `backend/tools/code_sandbox.py` — Isolated code execution engine enforcing `--network none`, timeout, and output capture.
 - `backend/tools/spreadsheet.py` — Excel spreadsheet reader, writer, and statistical calculation tool (`openpyxl` & `pandas`).
-- `backend/tools/tool_registry.py` — Central discovery, registration, and invocation registry for agent tools with JSON schema serialization.
+- `backend/tools/tool_registry.py` — Central discovery, registration, and invocation registry for agent tools with JSON schema serialization and deliverable/doc search tools.
+- `backend/tools/doc_search.py` — Hybrid search tool exposing semantic and keyword retrieval to the orchestrator.
 - `backend/orchestrator/state.py` — Task lifecycle state management, SQLite checkpoint snapshots, observation accumulation, and human confirmation gates.
 - `backend/orchestrator/planner.py` — Structured multi-step plan generation with tool assignments and confirmation flags.
 - `backend/orchestrator/executor.py` — ReAct execution loop coordinating model routing, tool dispatch, bounded replanning, and confirmation gates.
@@ -55,7 +56,10 @@ See Phases.md for phase definitions and exit criteria.
 - `backend/deliverables/xlsx_writer.py` — Multi-sheet styled calculation workbooks with header formatting and column auto-sizing (`openpyxl`).
 - `backend/ocr_vision/ocr_pipeline.py` — Offline OCR text extraction using local models.
 - `backend/ocr_vision/drawing_reader.py` — P&ID engineering drawing parser with ISA 5.1 tag extractor for valves, pumps, vessels, and instrumentation.
-- `backend/knowledge_base/*` — Stubs for DocumentIngestor, Embedder, VectorStore, HybridSearch.
+- `backend/knowledge_base/embed.py` — Local dense vector embedder with L2 normalization and offline deterministic hash projection.
+- `backend/knowledge_base/vector_store.py` — Local vector store with SQLite persistence and exact cosine nearest-neighbor search.
+- `backend/knowledge_base/hybrid_search.py` — Hybrid search engine fusing dense semantic embeddings with BM25 keyword matching.
+- `backend/knowledge_base/ingest.py` — Document chunking with sliding window overlap and automatic embedding/indexing.
 - `sandbox/Dockerfile.sandbox` + `sandbox/entrypoint.sh` — Minimal offline sandbox container image.
 - `scripts/setup_env.sh`, `scripts/download_models.sh`, `scripts/run_demo.sh` — Setup scripts with Ollama and HuggingFace download commands.
 - `docker-compose.yml` + `Dockerfile.backend` + `frontend/Dockerfile.frontend` — Compose stack.
@@ -69,20 +73,19 @@ See Phases.md for phase definitions and exit criteria.
 - `tests/test_orchestrator.py` — Unit and integration tests for Planner, TaskState, Executor, confirmation gates, and OrchestrationGraph.
 - `tests/test_deliverables.py` — Unit tests for Word documents, PowerPoint decks, and Excel workbooks.
 - `tests/test_vision.py` — Unit tests for VisionClient, OCRPipeline, and DrawingReader.
+- `tests/test_knowledge_base.py` — Unit tests for Embedder, VectorStore, HybridSearch, DocumentIngestor, and DocSearchTool.
 
 ---
 
 ## In Progress 🔧
-_(none — Phase 6 completed)_
+_(none — Phase 7 completed)_
 
 ---
 
-## Not Started (Phase 7 upcoming)
-- [ ] Implement `backend/knowledge_base/embed.py` (BGE-M3 local embedding inference)
-- [ ] Implement `backend/knowledge_base/vector_store.py` (ChromaDB / SQLite vector search)
-- [ ] Implement `backend/knowledge_base/hybrid_search.py` (Vector + BM25 rank fusion)
-- [ ] Implement `backend/knowledge_base/ingest.py` (Document chunking and ingestion)
-- [ ] Create `tests/test_knowledge_base.py`
+## Not Started (Phase 8 & 9 upcoming)
+- [ ] Implement Phase 8 flagship scenario demo assets in `demo_assets/` (P&ID diagram, inspection report, technical manual)
+- [ ] Connect full multi-step scenario into `scripts/run_demo.sh` and end-to-end integration test `tests/test_e2e_scenario.py`
+- [ ] Phase 9 Hardening & Verification
 
 ---
 
@@ -91,6 +94,7 @@ _(record any decision that deviates from or finalizes something left open in PRD
 
 | Date | Decision | Why | Doc affected |
 |---|---|---|---|
+| 2026-08-26 | Weighted rank fusion ($0.7 \times \text{dense} + 0.3 \times \text{BM25}$) in `backend/knowledge_base/hybrid_search.py` | Balances semantic understanding with exact technical identifier retrieval (tag numbers, ISA codes) | Architecture.md §7 |
 | 2026-08-26 | ISA 5.1 regex extraction in `backend/ocr_vision/drawing_reader.py` | Fast offline extraction of valves, pumps, vessels, and instruments from technical drawings | Architecture.md §5 |
 | 2026-08-26 | Added `python-docx` and `python-pptx` to backend dependencies | Required for generating Word approval notes and PowerPoint presentations | backend/requirements.txt |
 | 2026-08-26 | SQLite checkpointing in `backend/orchestrator/state.py` | Allows full offline task pause, inspection, and human confirmation resumption | Architecture.md §6 |
@@ -112,7 +116,8 @@ _(record any decision that deviates from or finalizes something left open in PRD
 ## Session Log
 _(short entries, newest on top — what happened, what's next. Keeps context across chat switches without re-reading whole codebase)_
 
-- **2026-08-26 (Phase 6 Complete)** — Implemented `VisionClient` (OpenAI-compatible local multimodal VLM client), `OCRPipeline` (offline document OCR with fallback), and `DrawingReader` (ISA 5.1 P&ID equipment and instrument extractor). Added `test_vision.py` — all 65 tests passing across test suite. Mypy and ruff clean. Next: Phase 7 (Knowledge Base / Hybrid RAG).
+- **2026-08-26 (Phase 7 Complete)** — Implemented Hybrid RAG / Knowledge Base: `Embedder` (dense vector embeddings with L2 normalization), `VectorStore` (SQLite persistence & cosine similarity nearest neighbors), `HybridSearch` (dense vector + BM25 keyword matching with weighted fusion), `DocumentIngestor` (sliding window text chunker & directory indexer), and `DocSearchTool` (registered in `ToolRegistry`). Added `test_knowledge_base.py` — all 72 tests passing across test suite. Mypy and ruff clean. Next: Phase 8 (Flagship Scenario).
+- **2026-08-26 (Phase 6 Complete)** — Implemented `VisionClient` (OpenAI-compatible local multimodal VLM client), `OCRPipeline` (offline document OCR with fallback), and `DrawingReader` (ISA 5.1 P&ID equipment and instrument extractor). Added `test_vision.py` — all 65 tests passing across test suite. Mypy and ruff clean.
 - **2026-08-26 (Phase 5 Complete)** — Implemented deliverables engine: `DocxWriter` (executive approval notes, memo blocks, tables, formal sign-offs), `PptxWriter` (slide decks with title, content, summary layouts), and `XlsxWriter` (styled multi-sheet calculation workbooks). Added `test_deliverables.py` — all 61 tests passing across test suite. Mypy and ruff clean.
 - **2026-08-26 (Phase 4 Complete)** — Built `backend/orchestrator/state.py` (TaskState, SQLite checkpoints, confirmation gating), `backend/orchestrator/planner.py` (structured multi-step plan generation), `backend/orchestrator/executor.py` (ReAct loop, tool coordination, bounded replanning), and `backend/orchestrator/graph.py` (workflow state graph). Added complete unit & integration tests (`test_orchestrator.py`) — all 58 tests passing across test suite. Mypy and ruff clean.
 - **2026-08-26 (Phase 3 Complete)** — Implemented standalone tool layer: `ScopedFileIO` (permission-checked against `tool_permissions.yaml`), `CodeSandbox` (`--network none` Docker + timeout management), `SpreadsheetTool` (`openpyxl` & `pandas` tabular inspection & stats), and `ToolRegistry` (tool registration, discovery, schema export, and dispatch). All 51 tests passing.

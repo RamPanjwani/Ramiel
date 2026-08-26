@@ -9,9 +9,14 @@ from __future__ import annotations
 
 from typing import Any
 
+from backend.knowledge_base.hybrid_search import HybridSearch
+
 
 class DocSearchTool:
     """Agent tool for semantic and keyword retrieval over local enterprise documents."""
+
+    def __init__(self, hybrid_search: HybridSearch | None = None) -> None:
+        self.hybrid_search = hybrid_search or HybridSearch()
 
     def search(self, query: str, top_k: int = 5) -> list[dict[str, Any]]:
         """Search the local knowledge base for relevant document passages.
@@ -22,9 +27,6 @@ class DocSearchTool:
 
         Returns:
             A list of search result dictionaries containing content, source document ID,
-            page number, and similarity score.
-
-        Raises:
-            NotImplementedError: Implementation pending Phase 7.
+            scores, and metadata citations.
         """
-        raise NotImplementedError("DocSearchTool.search is not yet implemented.")
+        return self.hybrid_search.search(query=query, top_k=top_k)

@@ -20,10 +20,14 @@ from backend.serving.vision_client import VisionClient
 logger = structlog.get_logger(__name__)
 
 # Standard ISA 5.1 instrumentation and equipment regex patterns
-_VALVE_PATTERN = re.compile(r"\b(V|FCV|PRV|MOV|PCV|TCV|LCV|PSV)-\d{3,4}[A-Z]?\b", re.IGNORECASE)
+_VALVE_PATTERN = re.compile(
+    r"\b(V|FCV|PRV|MOV|PCV|TCV|LCV|PSV)-\d{3,4}[A-Z]?\b", re.IGNORECASE
+)
 _PUMP_PATTERN = re.compile(r"\b(P|PU|COMP|C|K)-\d{3,4}[A-Z]?\b", re.IGNORECASE)
 _VESSEL_PATTERN = re.compile(r"\b(TK|TK-|T|V|D|HEX|E)-\d{3,4}[A-Z]?\b", re.IGNORECASE)
-_INSTRUMENT_PATTERN = re.compile(r"\b(PT|TT|FT|LT|PI|TI|FI|LI|AT|ZT|PIT|TIT|FIT|LIT)-\d{3,4}[A-Z]?\b", re.IGNORECASE)
+_INSTRUMENT_PATTERN = re.compile(
+    r"\b(PT|TT|FT|LT|PI|TI|FI|LI|AT|ZT|PIT|TIT|FIT|LIT)-\d{3,4}[A-Z]?\b", re.IGNORECASE
+)
 _LINE_PATTERN = re.compile(r"\b\d{1,2}\"-([A-Z0-9]+)-\d{3,5}\b", re.IGNORECASE)
 
 
@@ -79,13 +83,23 @@ class DrawingReader:
         for v in valves:
             equipment.append({"tag": v, "type": "Valve", "category": "Piping"})
         for p in pumps:
-            equipment.append({"tag": p, "type": "Pump/Compressor", "category": "Rotating Equipment"})
+            equipment.append(
+                {"tag": p, "type": "Pump/Compressor", "category": "Rotating Equipment"}
+            )
         for tk in vessels:
-            equipment.append({"tag": tk, "type": "Vessel/Tank", "category": "Static Equipment"})
+            equipment.append(
+                {"tag": tk, "type": "Vessel/Tank", "category": "Static Equipment"}
+            )
 
         instrument_list: list[dict[str, Any]] = []
         for inst in instruments:
-            instrument_list.append({"tag": inst, "type": "Transmitter/Indicator", "category": "Instrumentation"})
+            instrument_list.append(
+                {
+                    "tag": inst,
+                    "type": "Transmitter/Indicator",
+                    "category": "Instrumentation",
+                }
+            )
 
         return {
             "drawing_file": str(img_file),
@@ -93,5 +107,7 @@ class DrawingReader:
             "instruments": instrument_list,
             "piping_lines": lines,
             "total_components": len(equipment) + len(instrument_list),
-            "vlm_summary": vlm_text if vlm_text else "Parsed via offline OCR and ISA 5.1 symbol matcher.",
+            "vlm_summary": vlm_text
+            if vlm_text
+            else "Parsed via offline OCR and ISA 5.1 symbol matcher.",
         }
