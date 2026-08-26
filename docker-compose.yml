@@ -1,0 +1,55 @@
+# Ramiel — Docker Compose Stack
+# Phase 0 skeleton: backend + frontend + sandbox runner.
+# All services bound to localhost only. Sandbox uses network_mode: none.
+
+services:
+  # --- FastAPI Backend ---
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./backend:/app/backend
+      - ./config:/app/config
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - LOG_LEVEL=info
+    command: >
+      uvicorn backend.main:app
+      --host 0.0.0.0
+      --port 8000
+      --reload
+    restart: unless-stopped
+
+  # --- React Frontend ---
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - ./frontend/src:/app/src
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  # --- Code Execution Sandbox ---
+  # CRITICAL: network_mode MUST be "none" — Rules.md §1.5
+  sandbox:
+    build:
+      context: ./sandbox
+      dockerfile: Dockerfile.sandbox
+    network_mode: "none"
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 4g
+    # Not a persistent service — started on-demand by code_sandbox.py.
+    # This definition exists for `docker compose build sandbox`.
+    profiles:
+      - tools
