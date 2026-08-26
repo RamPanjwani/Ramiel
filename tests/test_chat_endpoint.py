@@ -14,8 +14,15 @@ class TestChatEndpoint:
     """Test /api/chat auto-routing and trace recording."""
 
     @pytest.mark.anyio
-    async def test_chat_offline_fallback(self) -> None:
+    @patch("backend.api.routes_chat._vllm_client.check_health", new_callable=AsyncMock)
+    @patch("backend.api.routes_chat._ollama_client.check_health", new_callable=AsyncMock)
+    async def test_chat_offline_fallback(
+        self, mock_ollama_health: AsyncMock, mock_vllm_health: AsyncMock
+    ) -> None:
         """When local model server is offline, endpoint returns guidance and records trace."""
+        mock_vllm_health.return_value = False
+        mock_ollama_health.return_value = False
+
         async with AsyncClient(
             transport=ASGITransport(app=app), base_url="http://test"
         ) as ac:

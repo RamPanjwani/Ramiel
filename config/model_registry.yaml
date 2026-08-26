@@ -14,7 +14,7 @@ models:
 
   - id: reasoning-fallback
     engine: ollama
-    path: /models/llama3-8b-instruct
+    path: /models/qwen2.5-coder-7b
     task_tags: [document, general_qa, planning, calc]
     min_vram_gb: 12
     fallback: null
